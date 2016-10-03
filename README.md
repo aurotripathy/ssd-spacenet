@@ -4,7 +4,7 @@ Note, this is derivative work. It applies SSD to the Spacenet dataset.
 Early results (demonstrating feasibility) are shown below. 
 
 <p align="center">
-<img src="docs-spacenet/figure_1.png" alt="Results" width="600px">
+<img src="./docs-spacenet/figure_1.png" alt="Results" width="600px">
 </p>
 
 This is just the ground-work (annotating scripts, creating lmdb, 
