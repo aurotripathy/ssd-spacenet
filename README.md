@@ -5,9 +5,9 @@ Note, this is derivative work. It applies [SSD](http://arxiv.org/abs/1512.02325)
 <img src="./docs-spacenet/figure_1.png" alt="Results" width="600px">
 </p>
 
-As of October 1, 2016, I've layed the the ground-work (annotating scripts, creating lmdb, 
-partitioning data into test/train sets,  and creating the training/detecting script) 
-and will serve as a baseline to apply improvements to. The training regime uses the same hyperparameters
+As of October 1, 2016, I've layed the ground-work (annotating data, creating lmdb, 
+partitioning data into test/train sets,  and creating the training/detecting script). 
+Improvements will be applied on this foundation. At the moment, the training regime uses the same hyperparameters
 as the Pascal VOC dataset in the original SSD implementation. 
 Also, no data-augmentation techniques have yet been applied and is the next refinement under considerarion. 
 
