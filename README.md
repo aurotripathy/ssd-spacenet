@@ -1,17 +1,15 @@
 # Building Detection in the Spacenet Satellite Imagery Dataset using Single Shot MultiBox Detector (SSD)
-Note, this is derivative work. It applies SSD to the Spacenet dataset.
-
-Early results (demonstrating feasibility) are shown below. 
+Note, this is derivative work. It applies SSD to the Spacenet dataset. Early results (demonstrating feasibility) are shown below. 
 
 <p align="center">
 <img src="./docs-spacenet/figure_1.png" alt="Results" width="600px">
 </p>
 
-This is just the ground-work (annotating scripts, creating lmdb, 
-partitioning data into test/train sets, 
-creating the training/detecting script) 
+As of October 1, 2016, I've layed the the ground-work (annotating scripts, creating lmdb, 
+partitioning data into test/train sets,  and creating the training/detecting script) 
 and will serve as a baseline to apply improvements to. The training regime uses the same hyperparameters
-as the pascal VOC dataset in the proginal SSD implementation. Also, no data-augmentation techniques have been applied and is the next refinement under considerarion. 
+as the Pascal VOC dataset in the original SSD implementation. 
+Also, no data-augmentation techniques have yet been applied and is the next refinement under considerarion. 
 
 # SSD: Single Shot MultiBox Detector
 
