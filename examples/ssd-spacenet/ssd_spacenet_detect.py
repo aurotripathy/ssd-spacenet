@@ -6,6 +6,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from os.path import expanduser
+from read_annotations import read_annotations
+from pudb import set_trace
 
 plt.rcParams['figure.figsize'] = (10, 10)
 plt.rcParams['image.interpolation'] = 'nearest'
@@ -27,6 +29,7 @@ caffe.set_mode_gpu()
 from google.protobuf import text_format
 from caffe.proto import caffe_pb2
 
+conf_threshold = 0.25
 
 # load Spacenet labels
 labelmap_file = 'data/spacenet/labelmap_spacenet.prototxt'
@@ -72,7 +75,7 @@ transformer.set_channel_swap('data', (2,1,0))  # the reference model has channel
 #---------------------
 # set net to batch size of 1
 
-def run_detect_net(image):
+def run_detect_net(image, gt_list):
     # Run the net and examine the top-k results
     transformed_image = transformer.preprocess('data', image)
     net.blobs['data'].data[...] = transformed_image
@@ -88,8 +91,8 @@ def run_detect_net(image):
     det_xmax = detections[0,0,:,5]
     det_ymax = detections[0,0,:,6]
 
-    # Get detections with confidence higher than 0.4.
-    top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.4]
+    # Get detections with confidence higher than a threshold.
+    top_indices = [i for i, conf in enumerate(det_conf) if conf >= conf_threshold]
 
 
     top_conf = det_conf[top_indices]
@@ -121,6 +124,22 @@ def run_detect_net(image):
         currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
         currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
 
+    # plot the ground_truth
+    for gt in gt_list:
+        xmin, xmax, ymin, ymax = gt
+        # xmin = int(round(top_xmin[i] * image.shape[1]))
+        # ymin = int(round(top_ymin[i] * image.shape[0]))
+        # xmax = int(round(top_xmax[i] * image.shape[1]))
+        # ymax = int(round(top_ymax[i] * image.shape[0]))
+        # score = top_conf[i]
+        # label = int(top_label_indices[i])
+        # label_name = top_labels[i]
+        display_txt = ''
+        coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
+        color = (0, 0, 0.5)
+        currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
+        currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
+
 
 image_resize = 300
 net.blobs['data'].reshape(1, 3, image_resize, image_resize)
@@ -129,11 +148,13 @@ with open('data/spacenet/test.txt') as f:
     for line in f.readlines():
 
         img_file = line.split(' ')[0]
-        gt_file = line.split(' ')[1]
+        gt_file = line.split(' ')[1].split('\n')[0]
 
         image = caffe.io.load_image(expanduser('~') + 
                                     '/spacenet-data/' + img_file)
-        run_detect_net(image, gt_file)
+        # set_trace()
+        bounding_box_gt_list = read_annotations(expanduser('~') + '/spacenet-data/' + gt_file)
+        run_detect_net(image, bounding_box_gt_list)
         plt.show()
 
 
