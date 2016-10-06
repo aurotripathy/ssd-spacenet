@@ -11,7 +11,7 @@ Improvements will be applied on this foundation. At the moment, the training reg
 as the Pascal VOC dataset in the original SSD implementation. 
 Also, no data-augmentation techniques have yet been applied and is the next refinement under considerarion. 
 
-You can visualize the SSD training network [here](https://gist.github.com/aurotripathy/0b5bfd475df9664afdc9ab695377112d) using [Netscope](http://ethereon.github.io/netscope/quickstart.html)
+You can visualize the SSD training network [here](http://ethereon.github.io/netscope/#/gist/0b5bfd475df9664afdc9ab695377112d) using [Netscope](http://ethereon.github.io/netscope/quickstart.html)
 
 # SSD: Single Shot MultiBox Detector
 
