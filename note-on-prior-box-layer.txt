@@ -1,0 +1,47 @@
+
+PriorBox layer type is only used to generate prior (default) bounding boxes, which is fixed 
+(so you can think of it as a label). No need to backpropagate PriorBox.
+
+The location prediction (*_mbox_loc) is the real prediction and is an offset on top of prior box.
+The location prediction is back-propagated during training. 
+
+
+In the DetectionOutout layer, the "fixed" prior bounding-box is required in the loss calculation between predicted bounding box and ground-truth.
+
+
+Detection Output layer
+----------------------
+
+layer {
+  name: "detection_out"
+  type: "DetectionOutput"
+  bottom: "mbox_loc"
+  bottom: "mbox_conf_flatten"
+  bottom: "mbox_priorbox"
+  top: "detection_out"
+  include {
+    phase: TEST
+  }
+  detection_output_param {
+    num_classes: 2
+    share_location: true
+    background_label_id: 0
+    nms_param {
+      nms_threshold: 0.45
+      top_k: 400
+    }
+    save_output_param {
+      output_directory: "/home/tempuser/spacenet-data/results/spacenet/SSD_300x300/Main"
+      output_name_prefix: "comp4_det_test_"
+      output_format: "VOC"
+      label_map_file: "data/spacenet/labelmap_spacenet.prototxt"
+      name_size_file: "data/spacenet/test_name_size.txt"
+      num_test_image: 878
+    }
+    code_type: CENTER_SIZE
+    keep_top_k: 200
+    confidence_threshold: 0.01
+  }
+}
+
+
