@@ -1,8 +1,8 @@
-# Building Detection in the [Spacenet](https://aws.amazon.com/public-data-sets/spacenet/) Satellite Imagery Dataset using Single Shot MultiBox Detector (SSD)
+# Building Detection in the Spacenet Satellite Imagery Dataset using Single Shot MultiBox Detector (SSD)
 This project applies the Caffe-based Single-Shot Detector 
-[SSD](http://arxiv.org/abs/1512.02325) algorithm  to the 
+([SSD](http://arxiv.org/abs/1512.02325)) algorithm  to the 
 [Spacenet](https://aws.amazon.com/public-data-sets/spacenet/) dataset. 
-Early results (demonstrating feasibility) are shown below. Note, this is derivative work.
+Early results (demonstrating feasibility) are shown below. 
 
 <p align="center">
 <img src="./docs-spacenet/figure_1.png" alt="Results" width="600px">
