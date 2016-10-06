@@ -1,4 +1,4 @@
-# Building Detection in the Spacenet Satellite Imagery Dataset using Single Shot MultiBox Detector (SSD)
+# Building Detection in the [Spacenet](https://aws.amazon.com/public-data-sets/spacenet/) Satellite Imagery Dataset using Single Shot MultiBox Detector (SSD)
 Note, this is derivative work. It applies [SSD](http://arxiv.org/abs/1512.02325) to the Spacenet dataset. Early results (demonstrating feasibility) are shown below. 
 
 <p align="center">
