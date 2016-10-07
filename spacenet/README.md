@@ -39,13 +39,13 @@ This script will read all the images and the corresponding annotations and gener
 
 ## Create the Training/Test split
 
-From caffe root, `cd data/spacenet'
+From caffe root, `cd data/spacenet`
 
 Execute the script, `create-train-val.py`
 
 At the end of the execution, we produce `trainval.txt` and `test.txt`.
 
 ## Create the test and train LMDB files
-From caffe root, `cd data/spacenet'.
+From caffe root, `cd data/spacenet`.
 
-Execute the script, `create_data.sh'.
+Execute the script, `create_data.sh`.
