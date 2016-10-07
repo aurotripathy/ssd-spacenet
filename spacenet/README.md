@@ -1,5 +1,4 @@
 # Data Prep Steps
-
 ## Getting the data
 
 Steps to get the dataset are available [here](https://aws.amazon.com/public-data-sets/spacenet/)
@@ -46,3 +45,7 @@ Execute the script, `create-train-val.py`
 
 At the end of the execution, we produce `trainval.txt` and `test.txt`.
 
+## Create the test and train LMDB files
+From caffe root, `cd data/spacenet'.
+
+Execute the script, `create_data.sh'.
