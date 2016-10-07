@@ -9,14 +9,18 @@ Early results (demonstrating feasibility) are shown below.
 </p>
 
 Spacenet data-preparation details are [here](spacenet/README.md).
+
+Steps to train and test are [here](examples/ssd-spacenet/README.md)
  
 As of October 1, 2016, I've layed the ground-work (annotating data, creating lmdb, 
 partitioning data into test/train sets,  and creating the training/detecting script). 
 Improvements will be applied on this foundation. At the moment, the training regime uses the same hyperparameters
 as the Pascal VOC dataset in the original SSD implementation. 
-Also, no data-augmentation techniques have yet been applied and is the next refinement under considerarion. 
+Also, no additional data-augmentation techniques have yet been applied and is the next refinement under considerarion. 
 
 You can visualize the SSD training network [here](http://ethereon.github.io/netscope/#/gist/0b5bfd475df9664afdc9ab695377112d) using [Netscope](http://ethereon.github.io/netscope/quickstart.html)
+
+Below is the documentation of the actual project
 
 # SSD: Single Shot MultiBox Detector
 
