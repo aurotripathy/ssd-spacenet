@@ -8,6 +8,8 @@ Early results (demonstrating feasibility) are shown below.
 <img src="./docs-spacenet/figure_1.png" alt="Results" width="600px">
 </p>
 
+Spacenet data-preparation details are [here](spacenet/README.md).
+ 
 As of October 1, 2016, I've layed the ground-work (annotating data, creating lmdb, 
 partitioning data into test/train sets,  and creating the training/detecting script). 
 Improvements will be applied on this foundation. At the moment, the training regime uses the same hyperparameters
