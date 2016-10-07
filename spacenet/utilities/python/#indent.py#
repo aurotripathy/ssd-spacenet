@@ -1,1 +1,0 @@
-one approach is to give some hard negative background a new class ID and train them as if they are "objects"

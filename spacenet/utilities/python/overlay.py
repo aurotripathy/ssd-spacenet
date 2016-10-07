@@ -32,8 +32,7 @@ wnd_str = 'spacenet'
 black = (0, 0, 0)
 white = (255, 255, 255)
 if __name__ == "__main__":
-    #truth_fp = '../../data/AOI_1_Rio/processedData/vectorData/summaryData/3band-3rd-set.geojson'
-    truth_fp = '../../data/AOI_1_Rio/processedData/vectorData/summaryData/2025.geojson'
+    truth_fp = '/media/tempuser/RAID 5/spacenet/data/AOI_1_Rio/processedData/vectorData/summaryData/2025.geojson'
 
     sol_polys = gT.importgeojson(truth_fp, removeNoBuildings=True)
 
