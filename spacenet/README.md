@@ -2,7 +2,7 @@
 
 ## Getting the data
 
-Step to get the data are available [here](https://aws.amazon.com/public-data-sets/spacenet/)
+Steps to get the dataset are available [here](https://aws.amazon.com/public-data-sets/spacenet/)
 
 You can also use the bash script `get_data <data-dir>` to get the entire data from aws and place it in `dir-name`
 
@@ -11,7 +11,6 @@ You can also use the bash script `get_data <data-dir>` to get the entire data fr
 `
 cd spacement/utilities/python/
 `
-
 `
 ./read3band.py
 `
@@ -21,19 +20,22 @@ The response should be
 `251994
 `
 
-## Test to see if the Bounding Boxes are being generated correctly
+## Test to see if the bounding boxes are being generated correctly.
 `cd spacement/utilities/python/`
-
 `overlay.py`
 
-You should see the image below. THe black bounding boxes are used for training. 
+You should see the image below. The white boxes represent the contours and the black boxes 
+represent the bounding boxes. 
+The black bounding boxes are used for training. 
 
 <p align="center">
 <img src="./utilities/python/Screenshot-of-bb-overlay.png" alt="Results" width="600px">
 </p>
 
+## Generate the Pascal VOC-Compatible Annotation File
 
+`gen-pascalvoc-format.py`
 
-
+This script will read all the images and the corresponding annotations and generate an Pascal VOC-compatible annotation file.
 
  
