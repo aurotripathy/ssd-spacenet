@@ -10,9 +10,12 @@ You can also use the bash script `get_data <data-dir>` to get the entire data fr
 
 `
 cd spacement/utilities/python/
+
 ./read3band.py
 `
+
 The response should be 
+
 `251994
 `
 
