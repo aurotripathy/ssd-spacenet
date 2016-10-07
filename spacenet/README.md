@@ -34,8 +34,15 @@ The black bounding boxes are used for training.
 
 ## Generate the Pascal VOC-Compatible Annotation File
 
-`gen-pascalvoc-format.py`
-
 This script will read all the images and the corresponding annotations and generate an Pascal VOC-compatible annotation file.
 
- 
+`gen-pascalvoc-format.py`
+
+## Create the Training/Test split
+
+From caffe root, `cd data/spacenet'
+
+Execute the script, `create-train-val.py`
+
+At the end of the execution, we produce `trainval.txt` and `test.txt`.
+
