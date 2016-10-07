@@ -92,7 +92,7 @@ if __name__ == "__main__":
           print "annotation: {} is not an integer".format(anno)
       elif anno_type == "detection":
         if not os.path.exists(root_dir + anno):
-          print "annofation file: {} does not exist".format(root_dir + anno)
+          print "annotation file: {} does not exist".format(root_dir + anno)
           sys.exit()
       break
   # check if label map file exist

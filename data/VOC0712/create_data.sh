@@ -7,6 +7,7 @@ redo=1
 data_root_dir="$HOME/data/VOCdevkit"
 dataset_name="VOC0712"
 mapfile="$root_dir/data/$dataset_name/labelmap_voc.prototxt"
+echo "+++Mapfile" $mapfile
 anno_type="detection"
 db="lmdb"
 min_dim=0
