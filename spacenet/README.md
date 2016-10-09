@@ -3,7 +3,7 @@
 
 Steps to get the dataset are available [here](https://aws.amazon.com/public-data-sets/spacenet/)
 
-You can also use the bash script `get_data <data-dir>` to get the entire data from aws and place it in `dir-name`
+You can also use the bash script `get_data <data-dir>` to get the entire data from aws and place it in `data_dir`
 
 ## Test to see if you are able to read the geojson files 
 
@@ -14,13 +14,11 @@ cd spacement/utilities/python/
 ./read3band.py
 `
 
-The response should be 
-
-`251994
-`
+The response should be `251994`
 
 ## Test to see if the bounding boxes are being generated correctly.
 `cd spacement/utilities/python/`
+
 `overlay.py`
 
 You should see the image below. The white boxes represent the contours and the black boxes 
@@ -49,3 +47,23 @@ At the end of the execution, we produce `trainval.txt` and `test.txt`.
 From caffe root, `cd data/spacenet`.
 
 Execute the script, `create_data.sh`.
+
+##One Last Check
+From caffe root, 
+
+`cd data/spacenet`
+
+Check that the file `labelmap_spacenet.prototxt` has just two labels, building and background as shown below.
+
+~~~~
+item {
+  name: "none_of_the_above"
+  label: 0
+  display_name: "background"
+}
+item {
+  name: "building"
+  label: 1
+  display_name: "building"
+}
+~~~~
