@@ -48,7 +48,7 @@ From caffe root, `cd data/spacenet`.
 
 Execute the script, `create_data.sh`.
 
-##One Last Check
+## One Last Check
 From caffe root, 
 
 `cd data/spacenet`
