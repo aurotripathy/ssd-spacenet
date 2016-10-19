@@ -16,9 +16,24 @@ from caffe.proto import caffe_pb2
 import os
 import sys
 
+def get_labelnames(labelmap, labels):
+    num_labels = len(labelmap.item)
+    labelnames = []
+    if type(labels) is not list:
+        labels = [labels]
+    for label in labels:
+        found = False
+        for i in xrange(0, num_labels):
+            if label == labelmap.item[i].label:
+                found = True
+                labelnames.append(labelmap.item[i].display_name)
+                break
+        assert found == True
+    return labelnames
+
 
 class SsdDetectionServer(object):
-    def __init__(self):
+    def __init__(self, labelmap_file, model_def, model_weights, threshold=0.2):
 
         plt.rcParams['figure.figsize'] = (10, 10)
         plt.rcParams['image.interpolation'] = 'nearest'
@@ -29,21 +44,16 @@ class SsdDetectionServer(object):
         os.chdir(caffe_root)
         sys.path.insert(0, 'python')
 
-        self.conf_threshold = 0.10
+        self.conf_threshold = threshold
 
-        # load VOC labels for the 21 classes
-        labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
         file = open(labelmap_file, 'r')
         self.labelmap = caffe_pb2.LabelMap()
         text_format.Merge(str(file.read()), self.labelmap)
 
         # Load the net in the test phase for inference, and configure input preprocessing.
-        model_def = 'models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
-        model_weights = 'models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
-        
         self.net = caffe.Net(model_def,      # defines the structure of the model
-                        model_weights,  # contains the trained weights
-                        caffe.TEST)     # use test mode (e.g., don't perform dropout)
+                             model_weights,  # contains the trained weights
+                             caffe.TEST)     # use test mode (e.g., don't perform dropout)
         
         image_resize = 300
         self.net.blobs['data'].reshape(1, 3, image_resize, image_resize)
@@ -83,8 +93,12 @@ class SsdDetectionServer(object):
         top_xmax = det_xmax[top_indices]
         top_ymax = det_ymax[top_indices]
 
+        return top_conf, top_label_indices, top_labels, top_xmin, top_ymin, top_xmax, top_ymax
+    
+    def plot_boxes(self, save_in_file, image, 
+                   top_conf, top_label_indices, top_labels, 
+                   top_xmin, top_ymin, top_xmax, top_ymax):
 
-        # Plot the boxes
         colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
 
         plt.imshow(image)
@@ -103,37 +117,39 @@ class SsdDetectionServer(object):
             color = colors[label]
             currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
             currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
-
-
-def get_labelnames(labelmap, labels):
-    num_labels = len(labelmap.item)
-    labelnames = []
-    if type(labels) is not list:
-        labels = [labels]
-    for label in labels:
-        found = False
-        for i in xrange(0, num_labels):
-            if label == labelmap.item[i].label:
-                found = True
-                labelnames.append(labelmap.item[i].display_name)
-                break
-        assert found == True
-    return labelnames
-
-
-ssd_server_detect = SsdDetectionServer()
-
-with open('data/VOC0712/test.txt') as f:
-    for line in f.readlines():
-
-        img_file = line.split(' ')[0]
-        gt_file = line.split(' ')[1].split('\n')[0]
-
-        image = caffe.io.load_image(expanduser('~') + 
-                                    '/data/VOCdevkit/' + img_file)
-        # set_trace()
-        bounding_box_gt_list = read_annotations(expanduser('~') + '/data/VOCdevkit/' + gt_file)
-        ssd_server_detect.run_detect_net(image)
+        plt.savefig(save_in_file, bbox_inches='tight')
         plt.show()
+
+
+    def load_image(self, image_file):
+        return caffe.io.load_image(image_file)
+
+
+# # Unit test
+
+# model_def = 'models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
+# model_weights = 'models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
+
+# # load VOC labels for the 21 classes
+# labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
+
+# ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights)
+
+# with open('data/VOC0712/test.txt') as f:
+#     for line in f.readlines():
+
+#         img_file = line.split(' ')[0]
+#         gt_file = line.split(' ')[1].split('\n')[0]
+
+#         image = ssd_server_detect.load_image(expanduser('~') + 
+#                                     '/data/VOCdevkit/' + img_file)
+#         # set_trace()
+#         bounding_box_gt_list = read_annotations(expanduser('~') + '/data/VOCdevkit/' + gt_file)
+#         top_conf, top_label_indices, top_labels, top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image)
+#         ssd_server_detect.plot_boxes(os.path.basename(img_file), image, 
+#                                      top_conf, top_label_indices, top_labels, 
+#                                      top_xmin, top_ymin, top_xmax, top_ymax)
+
+
 
 
