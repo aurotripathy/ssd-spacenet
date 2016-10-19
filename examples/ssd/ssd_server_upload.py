@@ -3,6 +3,8 @@ from flask import Flask, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from ssd_server_detect import SsdDetectionServer
 
+from twilio.rest import Client
+
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -13,6 +15,21 @@ labelmap_file = '../../data/VOC0712/labelmap_voc.prototxt'
 model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
 model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
 ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights)
+
+customer_phone_number = 14088025434
+
+def _send_sms_notification(to, message_body, callback_url):
+    # Ensure that the env has the vaiables below defined
+    account_sid = os.environ.get('TWILIO_ACCOUNT_SID', None)
+    auth_token = os.environ.get('TWILIO_AUTH_TOKEN', None)
+    twilio_number = os.environ.get('TWILIO_NUMBER', None) # TODO make this as input
+    client = Client(account_sid, auth_token)
+    client.messages.create(to=to,
+                           from_=twilio_number,
+                           body=message_body,
+                           status_callback=callback_url)
+
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -45,6 +62,12 @@ def detect_file():
             ssd_server_detect.plot_boxes(overlayed_file, image,  
                                          top_conf, top_label_indices, top_labels,                           
                                          top_xmin, top_ymin, top_xmax, top_ymax)     
+
+            callback_url = request.base_url + '/notification/status/update'
+            _send_sms_notification(customer_phone_number,
+                                   "Here's the picture from your porch cam",
+                                   callback_url)
+
             return redirect(url_for('detected_file',
                                     filename=filename))
     return '''
