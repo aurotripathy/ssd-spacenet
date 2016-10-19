@@ -16,7 +16,7 @@ from caffe.proto import caffe_pb2
 import os
 import sys
 
-def get_labelnames(labelmap, labels):
+def _get_labelnames(labelmap, labels):
     num_labels = len(labelmap.item)
     labelnames = []
     if type(labels) is not list:
@@ -87,7 +87,7 @@ class SsdDetectionServer(object):
 
         top_conf = det_conf[top_indices]
         top_label_indices = det_label[top_indices].tolist()
-        top_labels = get_labelnames(self.labelmap, top_label_indices)
+        top_labels = _get_labelnames(self.labelmap, top_label_indices)
         top_xmin = det_xmin[top_indices]
         top_ymin = det_ymin[top_indices]
         top_xmax = det_xmax[top_indices]
