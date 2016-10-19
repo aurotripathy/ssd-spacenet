@@ -118,7 +118,7 @@ class SsdDetectionServer(object):
             currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
             currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
         plt.savefig(save_in_file, bbox_inches='tight')
-        plt.show()
+        # plt.show()
 
 
     def load_image(self, image_file):
