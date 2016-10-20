@@ -5,7 +5,7 @@ from ssd_server_detect import SsdDetectionServer
 
 from twilio.rest import Client
 
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
@@ -30,12 +30,15 @@ def _send_sms_notification(to, message_body, callback_url):
                            status_callback=callback_url)
 
 
-
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 @app.route('/', methods=['GET', 'POST'])
+def non_func_homepage():
+    return '<p>No API calls at home</p>'
+
+@app.route('/detect/', methods=['GET', 'POST'])
 def detect_file():
     if request.method == 'POST':
         # check if the post request has the file part
@@ -65,8 +68,9 @@ def detect_file():
 
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
+            message = 'Results' + ' ' + request.base_url.replace('/detect', '') + 'uploads/' + filename 
             _send_sms_notification(recepient_phone_number,
-                                   "Here's the picture from your porch cam",
+                                   message,
                                    callback_url)
 
             return redirect(url_for('detected_file',
@@ -88,7 +92,7 @@ def detected_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
 
-@app.route('/notification/status/update', methods=["POST"])
+@app.route('/detect/notification/status/update', methods=["POST"])
 def notification_delivery_status():
     print "###Delivered  the notification"
     return '''                                                                                                
