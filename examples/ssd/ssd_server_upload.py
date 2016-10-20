@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 from ssd_server_detect import SsdDetectionServer
 
@@ -16,7 +16,7 @@ model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
 model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
 ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights)
 
-customer_phone_number = 14088025434
+recepient_phone_number = 14088025434
 
 def _send_sms_notification(to, message_body, callback_url):
     # Ensure that the env has the vaiables below defined
@@ -63,8 +63,9 @@ def detect_file():
                                          top_conf, top_label_indices, top_labels,                           
                                          top_xmin, top_ymin, top_xmax, top_ymax)     
 
-            callback_url = request.base_url + '/notification/status/update'
-            _send_sms_notification(customer_phone_number,
+            callback_url = request.base_url + 'notification/status/update'
+            print 'call back url {}'.format(callback_url)
+            _send_sms_notification(recepient_phone_number,
                                    "Here's the picture from your porch cam",
                                    callback_url)
 
@@ -87,3 +88,11 @@ def detected_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
 
+@app.route('/notification/status/update', methods=["POST"])
+def notification_delivery_status():
+    print "###Delivered  the notification"
+    return '''                                                                                                
+    <!doctype html> 
+    <title>Done</title>                                                                                
+    <h1>Done!</h1>                                                                    
+    '''
