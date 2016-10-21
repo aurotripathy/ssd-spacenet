@@ -117,8 +117,6 @@ def detect_curl_syntax():
                                    message,
                                    callback_url)
 
-            return redirect(url_for('detected_file',
-                                    filename=filename))
     return "<p>Done!</p>"
 
 
