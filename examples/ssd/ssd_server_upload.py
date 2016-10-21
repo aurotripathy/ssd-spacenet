@@ -36,7 +36,7 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def non_func_homepage():
-    return '<p>No API calls at home</p>'
+    return '<p>No API calls at home</p>', 400
 
 @app.route('/detect/', methods=['GET', 'POST'])
 def detect_file():
