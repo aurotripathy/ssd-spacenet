@@ -5,6 +5,13 @@ from ssd_server_detect import SsdDetectionServer
 
 from twilio.rest import Client
 
+# from flask import json
+
+import json
+import yaml
+
+
+
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 
@@ -17,8 +24,8 @@ model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
 model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
 ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights)
 
-recepient_phone_number = 14088025434
-# recepient_phone_number = '+919443845253'
+recipient_phone_number = 14088025434
+# recipient_phone_number = '+919443845253'
 
 def _send_sms_notification(to, message_body, callback_url):
     # Ensure that the env has the vaiables below defined
@@ -146,3 +153,28 @@ def curl_notification_delivery_status():
     <title>Done</title>                                                                                
     <h1>Done!</h1>                                                                    
     '''
+
+
+@app.route('/phone', methods = ['POST'])
+def api_message():
+
+    if request.headers['Content-Type'] == 'text/plain':
+        return "Text Message: " + request.data
+
+    elif request.headers['Content-Type'] == 'application/json':
+        print 'value of request.json {}'.format(json.dumps(request.json))
+        # parsed_json = json.load(request.json) //unicode issue to be understood
+        parsed_json = yaml.safe_load(json.dumps(request.json))
+        recipient_phone_number = parsed_json['phone']
+        print 'New recipient phone number {}'.format(recipient_phone_number)
+        return "JSON Message: " + json.dumps(request.json)
+
+    elif request.headers['Content-Type'] == 'application/octet-stream':
+        f = open('./binary', 'wb')
+        f.write(request.data)
+        f.close()
+        return "Binary message written!"
+
+    else:
+        return "415 Unsupported Media Type ;)"
+
