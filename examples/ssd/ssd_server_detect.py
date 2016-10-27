@@ -118,7 +118,7 @@ class SsdDetectionServer(object):
             currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
             currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
         plt.savefig(save_in_file, bbox_inches='tight')
-        # plt.show()
+        plt.hold(False)
 
 
     def load_image(self, image_file):
@@ -135,7 +135,7 @@ class SsdDetectionServer(object):
 
 # ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights)
 
-# with open('data/VOC0712/test.txt') as f:
+# with open('unit-test.txt') as f:
 #     for line in f.readlines():
 
 #         img_file = line.split(' ')[0]
