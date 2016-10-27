@@ -10,6 +10,7 @@ from twilio.rest import Client
 import json
 import yaml
 
+import cv2
 
 
 UPLOAD_FOLDER = './detect/uploads'
@@ -110,11 +111,13 @@ def detect_curl_syntax():
             print '... and filename is {}'.format(filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + filename)
+            # resize to 300 x 300 since the mode is for those dimensions
+            image_resized = cv2.resize(image, (300,300), interpolation = cv2.INTER_CUBIC)
             top_conf, top_label_indices, top_labels, \
-            top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image)
+            top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
 
             overlayed_file = UPLOAD_FOLDER + '/' + filename
-            ssd_server_detect.plot_boxes(overlayed_file, image,  
+            ssd_server_detect.plot_boxes(overlayed_file, image_resized,  
                                          top_conf, top_label_indices, top_labels,                           
                                          top_xmin, top_ymin, top_xmax, top_ymax)     
 
