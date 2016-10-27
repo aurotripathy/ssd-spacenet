@@ -78,7 +78,7 @@ def detect_file():
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
             message = 'Results' + ' ' + request.base_url.replace('/detect', '') + 'uploads/' + filename 
-            _send_sms_notification(recepient_phone_number,
+            _send_sms_notification(recipient_phone_number,
                                    message,
                                    callback_url)
 
@@ -121,7 +121,7 @@ def detect_curl_syntax():
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
             message = 'Results' + ' ' + request.base_url.replace('/curl', '') + 'uploads/' + filename 
-            _send_sms_notification(recepient_phone_number,
+            _send_sms_notification(recipient_phone_number,
                                    message,
                                    callback_url)
 
@@ -155,9 +155,13 @@ def curl_notification_delivery_status():
     '''
 
 
-@app.route('/phone', methods = ['POST'])
-def api_message():
 
+# responds to a curl message like this:
+# curl -H "Content-type: application/json" -X POST http://127.0.0.1:5000/phone -d '{"phone":"14088025434"}'
+@app.route('/phone/', methods = ['POST'])
+def api_phone():
+
+    global recipient_phone_number
     if request.headers['Content-Type'] == 'text/plain':
         return "Text Message: " + request.data
 
