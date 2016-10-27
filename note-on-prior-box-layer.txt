@@ -44,4 +44,6 @@ layer {
   }
 }
 
-
+COCO
+----
+dataset contains photos of 91 objects types that would be easily recognizable by a 4 year old. 
