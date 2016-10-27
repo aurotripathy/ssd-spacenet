@@ -33,7 +33,7 @@ def _get_labelnames(labelmap, labels):
 
 
 class SsdDetectionServer(object):
-    def __init__(self, labelmap_file, model_def, model_weights, threshold=0.2):
+    def __init__(self, labelmap_file, model_def, model_weights, threshold=0.5):
 
         plt.rcParams['figure.figsize'] = (10, 10)
         plt.rcParams['image.interpolation'] = 'nearest'
