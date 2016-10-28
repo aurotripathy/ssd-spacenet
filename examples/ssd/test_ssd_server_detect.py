@@ -28,6 +28,8 @@ with open('unit-test.txt') as f:
 
         image = ssd_server_detect.load_image(expanduser('~') + 
                                     '/data/VOCdevkit/' + img_file)
+        print 'Image shape {}'.format(image.shape)
+
         # set_trace()
         bounding_box_gt_list = read_annotations(expanduser('~') + '/data/VOCdevkit/' + gt_file)
         top_conf, top_label_indices, top_labels, top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image)
