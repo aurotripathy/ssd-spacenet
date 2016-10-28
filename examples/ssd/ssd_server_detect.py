@@ -104,6 +104,15 @@ class SsdDetectionServer(object):
         plt.imshow(image)
         currentAxis = plt.gca()
 
+        plt.tick_params(
+            axis='both',          # changes apply to the x-axis
+            which='both',      # both major and minor ticks are affected
+            top='off', bottom='off',      # ticks along the bottom edge are off
+            left='off', right='off',
+            labelbottom='off', labelleft='off')      # ticks along the bottom edge are off
+
+
+
         for i in xrange(top_conf.shape[0]):
             xmin = int(round(top_xmin[i] * image.shape[1]))
             ymin = int(round(top_ymin[i] * image.shape[0]))
