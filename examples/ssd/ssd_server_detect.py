@@ -114,7 +114,7 @@ class SsdDetectionServer(object):
             label_name = top_labels[i]
             display_txt = '%s %.2f'%(label_name, score)
             coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
-            color = colors[label]
+            color = colors[label % len(colors)]
             currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
             currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
         plt.savefig(save_in_file, bbox_inches='tight')
