@@ -20,9 +20,14 @@ app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-labelmap_file = '../../data/VOC0712/labelmap_voc.prototxt' 
-model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
-model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
+# labelmap_file = '../../data/VOC0712/labelmap_voc.prototxt' 
+# model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
+# model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
+
+labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
+model_def = '../../models/VGGNet/coco/SSD_300x300/deploy.prototxt'
+model_weights = '../../models/VGGNet/coco/SSD_300x300/VGG_coco_SSD_300x300_iter_240000.caffemodel'
+
 ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights)
 
 recipient_phone_number = 14088025434
