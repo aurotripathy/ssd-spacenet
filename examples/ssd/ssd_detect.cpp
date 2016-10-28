@@ -204,8 +204,11 @@ void Detector::Preprocess(const cv::Mat& img,
     sample = img;
 
   cv::Mat sample_resized;
-  if (sample.size() != input_geometry_)
+  if (sample.size() != input_geometry_) {
+    std::cout << "sample size" << sample.size() << std::endl;
     cv::resize(sample, sample_resized, input_geometry_);
+    std::cout << "resampled size" << sample_resized.size() << std::endl;
+  }
   else
     sample_resized = sample;
 
