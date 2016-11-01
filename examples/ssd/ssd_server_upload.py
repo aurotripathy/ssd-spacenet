@@ -15,6 +15,7 @@ import cv2
 
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_VID_EXTENSIONS = set(['mov'])
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -48,6 +49,12 @@ def _send_sms_notification(to, message_body, callback_url):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
+def allowed_video_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_VID_EXTENSIONS
+
 
 @app.route('/', methods=['GET', 'POST'])
 def non_func_homepage():
@@ -121,6 +128,10 @@ def detect_curl_syntax():
             top_conf, top_label_indices, top_labels, \
             top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
 
+
+            results_string = ''
+            for l, c in zip (top_labels, top_conf):
+                results_string += '{} ({:04.2f}),'.format(l, c)
             overlayed_file = UPLOAD_FOLDER + '/' + filename
             ssd_server_detect.plot_boxes(overlayed_file, image_resized,  
                                          top_conf, top_label_indices, top_labels,                           
@@ -128,7 +139,7 @@ def detect_curl_syntax():
 
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
-            message = 'Results' + ' ' + request.base_url.replace('/curl', '') + 'uploads/' + filename 
+            message = 'Detected:' + ' ' + results_string + ' ' + request.base_url.replace('/curl', '') + 'uploads/' + filename 
             _send_sms_notification(recipient_phone_number,
                                    message,
                                    callback_url)
@@ -189,4 +200,49 @@ def api_phone():
 
     else:
         return "415 Unsupported Media Type ;)"
+
+
+
+@app.route('/vidcurl/', methods=['POST'])
+def detect_vidcurl_syntax():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        print 'file name {}'.format(file)
+        if file and allowed_video_file(file.filename):
+            print 'I believe we made it this far...'
+            filename = secure_filename(file.filename)
+            print '... and filename is {}'.format(filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            #  need to change processing from here onwards relative to photos
+            vidcap = cv2.VideoCapture(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            outfile = os.path.join(app.config['UPLOAD_FOLDER'], 'detect_' + filename)
+            length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+            print 'Number of frames in file {}'.format(length)
+
+            # initialize the FourCC, video writer, dimensions of the frame, and  zeros array 
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            writer = None
+            (h, w) = (None, None)
+            zeros = None
+                                                                                
+            for count in range(length):
+                success,image = vidcap.read()
+                # superimpose on top-left, bottom-right
+                image= cv2.rectangle(image,(20,20),(100,100),(0,255,0),1)
+
+                if writer is None:
+                    # store the image dimensions, initialzie the video writer,
+                    # and construct the zeros array
+                    (h, w) = image.shape[:2]
+                    writer = cv2.VideoWriter(outfile, fourcc, 30, (w, h), True)
+                
+                # write the output frame to file
+                writer.write(image)
+
+
+    return "<p>Done!</p>"
 
