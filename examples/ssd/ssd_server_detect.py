@@ -33,7 +33,7 @@ def _get_labelnames(labelmap, labels):
 
 
 class SsdDetectionServer(object):
-    def __init__(self, labelmap_file, model_def, model_weights, threshold=0.5):
+    def __init__(self, labelmap_file, model_def, model_weights, threshold=0.4):
 
         plt.rcParams['figure.figsize'] = (10, 10)
         plt.rcParams['image.interpolation'] = 'nearest'
@@ -129,10 +129,51 @@ class SsdDetectionServer(object):
         plt.savefig(save_in_file, bbox_inches='tight')
         plt.hold(False)
 
+    def plot_boxes_into_image(self, image, 
+                   top_conf, top_label_indices, top_labels, 
+                   top_xmin, top_ymin, top_xmax, top_ymax):
+
+        colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
+
+        plt.imshow(image)
+        currentAxis = plt.gca()
+
+        plt.tick_params(
+            axis='both',          # changes apply to the x-axis
+            which='both',      # both major and minor ticks are affected
+            top='off', bottom='off',      # ticks along the bottom edge are off
+            left='off', right='off',
+            labelbottom='off', labelleft='off')      # ticks along the bottom edge are off
+
+
+
+        for i in xrange(top_conf.shape[0]):
+            xmin = int(round(top_xmin[i] * image.shape[1]))
+            ymin = int(round(top_ymin[i] * image.shape[0]))
+            xmax = int(round(top_xmax[i] * image.shape[1]))
+            ymax = int(round(top_ymax[i] * image.shape[0]))
+            score = top_conf[i]
+            label = int(top_label_indices[i])
+            label_name = top_labels[i]
+            display_txt = '%s %.2f'%(label_name, score)
+            coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
+            color = colors[label % len(colors)]
+            currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
+            currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
+        plt.hold(False)
+        # Now we can save it to a numpy array.
+        fig = plt.figure()
+        fig.add_subplot(111)
+        fig.canvas.draw()
+        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        return data
 
     def load_image(self, image_file):
         return caffe.io.load_image(image_file)
 
+    def resize_image(self, image):
+        return caffe.io.resize_image( image, (300, 300), interp_order=3 )
 
 # # Unit test
 
