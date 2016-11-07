@@ -15,7 +15,7 @@ import yaml
 
 import cv2
 
-
+IMAGE_SIZE = 500
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_VID_EXTENSIONS = set(['mov'])
@@ -27,12 +27,20 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # labelmap_file = '../../data/VOC0712/labelmap_voc.prototxt' 
 # model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
 # model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
+if IMAGE_SIZE==300:
+    labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
+    model_def = '../../models/VGGNet/coco/SSD_300x300/deploy.prototxt'
+    model_weights = '../../models/VGGNet/coco/SSD_300x300/VGG_coco_SSD_300x300_iter_240000.caffemodel'
+elif IMAGE_SIZE==500:
+    labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
+    model_def = '../../models/VGGNet/coco/SSD_500x500/deploy.prototxt'
+    model_weights = '../../models/VGGNet/coco/SSD_500x500/VGG_coco_SSD_500x500_iter_200000.caffemodel'
+else:
+    print 'error on image size; must be either 300 or 500'
+    exit(2)
 
-labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
-model_def = '../../models/VGGNet/coco/SSD_300x300/deploy.prototxt'
-model_weights = '../../models/VGGNet/coco/SSD_300x300/VGG_coco_SSD_300x300_iter_240000.caffemodel'
 
-ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights)
+ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights, IMAGE_SIZE)
 
 recipient_phone_number = 14088025434
 # recipient_phone_number = '+919443845253'
@@ -126,8 +134,8 @@ def detect_curl_syntax():
             print '... and filename is {}'.format(filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'orig_'+ filename))
             image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + 'orig_' + filename)
-            # resize to 300 x 300 since the model is for those dimensions
-            image_resized = ssd_server_detect.resize_image(image) #caffe api, changed from cv2 to match load
+            # resize to IMAGE_SIZE x IMAGE_SIZE since the model is for those dimensions
+            image_resized = ssd_server_detect.resize_image(image, IMAGE_SIZE) #caffe api, changed from cv2 to match load
             top_conf, top_label_indices, top_labels, \
             top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
 
