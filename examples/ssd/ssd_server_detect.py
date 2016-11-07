@@ -33,7 +33,7 @@ def _get_labelnames(labelmap, labels):
 
 
 class SsdDetectionServer(object):
-    def __init__(self, labelmap_file, model_def, model_weights, threshold=0.4):
+    def __init__(self, labelmap_file, model_def, model_weights, size, threshold=0.4):
 
         plt.rcParams['figure.figsize'] = (10, 10)
         plt.rcParams['image.interpolation'] = 'nearest'
@@ -55,8 +55,7 @@ class SsdDetectionServer(object):
                              model_weights,  # contains the trained weights
                              caffe.TEST)     # use test mode (e.g., don't perform dropout)
         
-        image_resize = 300
-        self.net.blobs['data'].reshape(1, 3, image_resize, image_resize)
+        self.net.blobs['data'].reshape(1, 3, size, size)
 
         # input preprocessing: 'data' is the name of the input blob == net.inputs[0]
         self.transformer = caffe.io.Transformer({'data': self.net.blobs['data'].data.shape})
@@ -172,8 +171,8 @@ class SsdDetectionServer(object):
     def load_image(self, image_file):
         return caffe.io.load_image(image_file)
 
-    def resize_image(self, image):
-        return caffe.io.resize_image( image, (300, 300), interp_order=3 )
+    def resize_image(self, image, size):
+        return caffe.io.resize_image( image, (size, size), interp_order=3 )
 
 # # Unit test
 
