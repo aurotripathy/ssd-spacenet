@@ -5,6 +5,9 @@ from ssd_server_detect import SsdDetectionServer
 
 from twilio.rest import Client
 
+import ImageDraw
+import Image
+
 # from flask import json
 
 import json
@@ -121,10 +124,10 @@ def detect_curl_syntax():
             print 'I believe we made it this far...'
             filename = secure_filename(file.filename)
             print '... and filename is {}'.format(filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + filename)
-            # resize to 300 x 300 since the mode is for those dimensions
-            image_resized = cv2.resize(image, (300,300), interpolation = cv2.INTER_CUBIC)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'orig_'+ filename))
+            image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + 'orig_' + filename)
+            # resize to 300 x 300 since the model is for those dimensions
+            image_resized = ssd_server_detect.resize_image(image) #caffe api, changed from cv2 to match load
             top_conf, top_label_indices, top_labels, \
             top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
 
@@ -231,17 +234,31 @@ def detect_vidcurl_syntax():
                                                                                 
             for count in range(length):
                 success,image = vidcap.read()
-                # superimpose on top-left, bottom-right
-                image= cv2.rectangle(image,(20,20),(100,100),(0,255,0),1)
+                # resize to 300 x 300 since the mode is for those dimensions
+                image_resized = cv2.resize(image, (300,300), interpolation = cv2.INTER_CUBIC)
+                top_conf, top_label_indices, top_labels, \
+                    top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
+            
+                results_string = ''
+                for l, c in zip (top_labels, top_conf):
+                    results_string += '{} ({:04.2f}),'.format(l, c)
+
+                    for i in xrange(top_conf.shape[0]):
+                        xmin = int(round(top_xmin[i] * image.shape[1]))
+                        ymin = int(round(top_ymin[i] * image.shape[0]))
+                        xmax = int(round(top_xmax[i] * image.shape[1]))
+                        ymax = int(round(top_ymax[i] * image.shape[0]))
+                        image_resized = cv2.rectangle(image_resized, (xmin, ymin), (xmax, ymax), 
+                                                      (0,255,0), 1)
 
                 if writer is None:
                     # store the image dimensions, initialzie the video writer,
                     # and construct the zeros array
-                    (h, w) = image.shape[:2]
+                    (h, w) = image_resized.shape[:2]
                     writer = cv2.VideoWriter(outfile, fourcc, 30, (w, h), True)
                 
                 # write the output frame to file
-                writer.write(image)
+                writer.write(image_resized)
 
 
     return "<p>Done!</p>"
