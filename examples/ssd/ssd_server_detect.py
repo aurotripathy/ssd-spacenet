@@ -174,6 +174,12 @@ class SsdDetectionServer(object):
     def resize_image(self, image, size):
         return caffe.io.resize_image( image, (size, size), interp_order=3 )
 
+
+    def cv_to_caffe(self, image):
+        image = image / 255.
+        return image[:,:,(2,1,0)]
+
+
 # # Unit test
 
 # model_def = 'models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
