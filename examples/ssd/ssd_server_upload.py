@@ -15,7 +15,9 @@ import yaml
 
 import cv2
 
-IMAGE_SIZE = 500
+from pudb import set_trace
+ 
+IMAGE_SIZE = 300
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_VID_EXTENSIONS = set(['mov'])
@@ -27,16 +29,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # labelmap_file = '../../data/VOC0712/labelmap_voc.prototxt' 
 # model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
 # model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
-if IMAGE_SIZE==300:
+if IMAGE_SIZE == 300:
     labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
     model_def = '../../models/VGGNet/coco/SSD_300x300/deploy.prototxt'
     model_weights = '../../models/VGGNet/coco/SSD_300x300/VGG_coco_SSD_300x300_iter_240000.caffemodel'
-elif IMAGE_SIZE==500:
+elif IMAGE_SIZE == 500:
     labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
     model_def = '../../models/VGGNet/coco/SSD_500x500/deploy.prototxt'
     model_weights = '../../models/VGGNet/coco/SSD_500x500/VGG_coco_SSD_500x500_iter_200000.caffemodel'
 else:
-    print 'error on image size; must be either 300 or 500'
+    print 'Error in image size; must be either 300 or 500'
     exit(2)
 
 
@@ -228,45 +230,40 @@ def detect_vidcurl_syntax():
             filename = secure_filename(file.filename)
             print '... and filename is {}'.format(filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
             #  need to change processing from here onwards relative to photos
             vidcap = cv2.VideoCapture(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             outfile = os.path.join(app.config['UPLOAD_FOLDER'], 'detect_' + filename)
             length = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
             print 'Number of frames in file {}'.format(length)
 
-            # initialize the FourCC, video writer, dimensions of the frame, and  zeros array 
-            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-            writer = None
-            (h, w) = (None, None)
-            zeros = None
-                                                                                
+            # set_trace()
+            video_build_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'video_build_folder')
+            if not os.path.exists(os.path.dirname(video_build_folder)):
+                try:
+                    os.makedirs(os.path.dirname(video_build_folder))
+                except OSError as exc: # Guard against race condition
+                    if exc.errno != errno.EEXIST:
+                        raise
+            results_list = set() # set of objects found
             for count in range(length):
-                success,image = vidcap.read()
-                # resize to 300 x 300 since the mode is for those dimensions
-                image_resized = cv2.resize(image, (300,300), interpolation = cv2.INTER_CUBIC)
-                top_conf, top_label_indices, top_labels, \
-                    top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
+                success, image = vidcap.read()
+                if success:
+                    # change into caffe format
+                    image = ssd_server_detect.cv_to_caffe(image)
+                    image_resized = ssd_server_detect.resize_image(image, IMAGE_SIZE) #caffe api, changed from cv2 to match load
+                    top_conf, top_label_indices, top_labels, \
+                        top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
             
-                results_string = ''
-                for l, c in zip (top_labels, top_conf):
-                    results_string += '{} ({:04.2f}),'.format(l, c)
 
-                    for i in xrange(top_conf.shape[0]):
-                        xmin = int(round(top_xmin[i] * image.shape[1]))
-                        ymin = int(round(top_ymin[i] * image.shape[0]))
-                        xmax = int(round(top_xmax[i] * image.shape[1]))
-                        ymax = int(round(top_ymax[i] * image.shape[0]))
-                        image_resized = cv2.rectangle(image_resized, (xmin, ymin), (xmax, ymax), 
-                                                      (0,255,0), 1)
+                    for l, c in zip (top_labels, top_conf):
+                        results_list.add(l)  # TODO add the confidence paramter later
+                        overlayed_file = video_build_folder + '/' + 'frame{}.jpg'.format(count)
+                        ssd_server_detect.plot_boxes(overlayed_file, image_resized,
+                                                     top_conf, top_label_indices, top_labels,
+                                                     top_xmin, top_ymin, top_xmax, top_ymax)
+                        print results_list
 
-                if writer is None:
-                    # store the image dimensions, initialzie the video writer,
-                    # and construct the zeros array
-                    (h, w) = image_resized.shape[:2]
-                    writer = cv2.VideoWriter(outfile, fourcc, 30, (w, h), True)
-                
-                # write the output frame to file
-                writer.write(image_resized)
 
 
     return "<p>Done!</p>"
