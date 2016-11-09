@@ -23,6 +23,7 @@ IMAGE_SIZE = 300
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_VID_EXTENSIONS = set(['mov'])
+HTTP_SERVER_URL = 'https://fcc6cacb.ngrok.io/detect/uploads/play.html'
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -275,7 +276,8 @@ def detect_vidcurl_syntax():
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
             results_str = ', '.join(str(s) for s in results_set)
-            message = 'Detected:' + ' ' + results_str + ' ' + request.base_url.replace('/vidcurl', '') + 'uploads/' + 'Uploaded_vid.mov'
+            # message = 'Detected:' + ' ' + results_str + ' ' + request.base_url.replace('/vidcurl', '') + 'uploads/' + 'Uploaded_vid.mov'
+            message = 'Detected:' + ' ' + results_str + ' ' + HTTP_SERVER_URL
             _send_sms_notification(recipient_phone_number,
                                    message,
                                    callback_url)
