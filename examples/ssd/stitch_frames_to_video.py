@@ -37,10 +37,12 @@ class stitchFrames(object):
                 break
             count += 1
             
-            writer.release()
+        writer.release()
         return count
 
 # set_trace()
+
+# unit test
 
 # in_dir = 'detect/uploads/video_build_folder/'
 # out_dir = './'
