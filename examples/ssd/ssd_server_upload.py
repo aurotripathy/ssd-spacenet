@@ -15,6 +15,8 @@ import yaml
 
 import cv2
 
+from stitch_frames_to_video import stitchFrames
+
 from pudb import set_trace
  
 IMAGE_SIZE = 300
@@ -188,6 +190,7 @@ def curl_notification_delivery_status():
 
 
 
+
 # responds to a curl message like this:
 # curl -H "Content-type: application/json" -X POST http://127.0.0.1:5000/phone -d '{"phone":"14088025434"}'
 @app.route('/phone/', methods = ['POST'])
@@ -245,7 +248,7 @@ def detect_vidcurl_syntax():
                 except OSError as exc: # Guard against race condition
                     if exc.errno != errno.EEXIST:
                         raise
-            results_list = set() # set of objects found
+            results_set = set() # set of objects found
             for count in range(length):
                 success, image = vidcap.read()
                 if success:
@@ -257,14 +260,36 @@ def detect_vidcurl_syntax():
             
 
                     for l, c in zip (top_labels, top_conf):
-                        results_list.add(l)  # TODO add the confidence paramter later
+                        results_set.add(l)  # TODO add the confidence paramter later
                         overlayed_file = video_build_folder + '/' + 'frame{}.jpg'.format(count)
                         ssd_server_detect.plot_boxes(overlayed_file, image_resized,
                                                      top_conf, top_label_indices, top_labels,
                                                      top_xmin, top_ymin, top_xmax, top_ymax)
-                        print results_list
+            print results_set
 
+            # now stitch the jpeg frames together to generate a mov  vodes video
+            stitched_frames = stitchFrames(video_build_folder + '/', app.config['UPLOAD_FOLDER'] + '/')
+            count = stitched_frames.stitch()
+
+
+            callback_url = request.base_url + 'notification/status/update'
+            print 'call back url {}'.format(callback_url)
+            results_str = ', '.join(str(s) for s in results_set)
+            message = 'Detected:' + ' ' + results_str + ' ' + request.base_url.replace('/vidcurl', '') + 'uploads/' + 'Uploaded_vid.mov'
+            _send_sms_notification(recipient_phone_number,
+                                   message,
+                                   callback_url)
 
 
     return "<p>Done!</p>"
 
+
+
+@app.route('/vidcurl/notification/status/update', methods=["POST"])
+def vidcurl_notification_delivery_status():
+    print "###Delivered  the video complete notification"
+    return '''                                                                                                
+    <!doctype html> 
+    <title>Done</title>                                                                                
+    <h1>Done!</h1>                                                                    
+    '''
