@@ -26,7 +26,7 @@ class stitchFrames(object):
             return -1
 
         (h, w) = image.shape[:2]
-        writer = cv2.VideoWriter(self.out_dir + 'video.mov', fourcc, 30, (w, h), True)
+        writer = cv2.VideoWriter(self.out_dir + 'video.mov', fourcc, 10, (w, h), True)
             
         while True:
             frame = self.in_dir + 'frame{}.jpg'.format(count)
