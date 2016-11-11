@@ -219,6 +219,28 @@ def api_phone():
         return "415 Unsupported Media Type ;)"
 
 
+import tempfile
+import shutil
+# http://stackoverflow.com/questions/27135470/python-how-to-create-a-directory-and-overwrite-an-existing-one-if-necessary
+def create_fresh_build_folder(dir_name):
+
+    if (os.path.exists(dir_name)):
+        # `tempfile.mktemp` Returns an absolute pathname of a file that 
+        # did not exist at the time the call is made. We pass
+        # dir=os.path.dirname(dir_name) here to ensure we will move
+        # to the same filesystem. Otherwise, shutil.copy2 will be used
+        # internally and the problem remains.
+        tmp = tempfile.mktemp(dir=os.path.dirname(dir_name))
+        # Rename the dir.
+        shutil.move(dir_name, tmp)
+        # And delete it.
+        shutil.rmtree(tmp)
+
+
+        # At this point, even if tmp is still being deleted,
+        # there is no name collision.
+        os.makedirs(dir_name)
+
 
 @app.route('/vidcurl/', methods=['POST'])
 def detect_vidcurl_syntax():
@@ -243,12 +265,13 @@ def detect_vidcurl_syntax():
 
             # set_trace()
             video_build_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'video_build_folder')
-            if not os.path.exists(os.path.dirname(video_build_folder)):
-                try:
-                    os.makedirs(os.path.dirname(video_build_folder))
-                except OSError as exc: # Guard against race condition
-                    if exc.errno != errno.EEXIST:
-                        raise
+            # if not os.path.exists(os.path.dirname(video_build_folder)):
+            #     try:
+            #         os.makedirs(os.path.dirname(video_build_folder))
+            #     except OSError as exc: # Guard against race condition
+            #         if exc.errno != errno.EEXIST:
+            #             raise
+            create_fresh_build_folder(video_build_folder)
             results_set = set() # set of objects found
             for count in range(length):
                 success, image = vidcap.read()
