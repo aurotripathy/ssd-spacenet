@@ -23,7 +23,7 @@ IMAGE_SIZE = 300
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_VID_EXTENSIONS = set(['mov'])
-HTTP_SERVER_URL = 'https://ba0290cb.ngrok.io/detect/uploads/play.html'
+HTTP_SERVER_URL = 'https://4d31343c.ngrok.io/detect/uploads/play.html'
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -181,7 +181,7 @@ def notification_delivery_status():
 
 
 @app.route('/detectimage/notification/status/update', methods=["POST"])
-def curl_notification_delivery_status():
+def detect_image_notification_delivery_status():
     print "###Delivered  the notification"
     return '''                                                                                                
     <!doctype html> 
@@ -242,7 +242,7 @@ def create_fresh_build_folder(dir_name):
         os.makedirs(dir_name)
 
 
-@app.route('/vidcurl/', methods=['POST'])
+@app.route('/detectvid/', methods=['POST'])
 def detect_vidcurl_syntax():
     if request.method == 'POST':
         # check if the post request has the file part
@@ -310,8 +310,8 @@ def detect_vidcurl_syntax():
 
 
 
-@app.route('/vidcurl/notification/status/update', methods=["POST"])
-def vidcurl_notification_delivery_status():
+@app.route('/detectvid/notification/status/update', methods=["POST"])
+def detect_vid_notification_delivery_status():
     print "###Delivered  the video complete notification"
     return '''                                                                                                
     <!doctype html> 
