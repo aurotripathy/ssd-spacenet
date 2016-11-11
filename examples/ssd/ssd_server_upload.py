@@ -23,7 +23,7 @@ IMAGE_SIZE = 300
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_VID_EXTENSIONS = set(['mov'])
-HTTP_SERVER_URL = 'https://fcc6cacb.ngrok.io/detect/uploads/play.html'
+HTTP_SERVER_URL = 'https://ba0290cb.ngrok.io/detect/uploads/play.html'
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -259,19 +259,19 @@ def detect_vidcurl_syntax():
                     top_conf, top_label_indices, top_labels, \
                         top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
             
-
+                    # print 'Processing frame {}; Label Count {}'.format(count, len(top_labels))
                     for l, c in zip (top_labels, top_conf):
-                        results_set.add(l)  # TODO add the confidence paramter later
-                        overlayed_file = video_build_folder + '/' + 'frame{}.jpg'.format(count)
-                        ssd_server_detect.plot_boxes(overlayed_file, image_resized,
-                                                     top_conf, top_label_indices, top_labels,
-                                                     top_xmin, top_ymin, top_xmax, top_ymax)
+                        results_set.add(l)  # TODO add the confidence parameter later
+                    overlayed_file = video_build_folder + '/' + 'frame{}.jpg'.format(count)
+                    ssd_server_detect.plot_boxes(overlayed_file, image_resized,
+                                                 top_conf, top_label_indices, top_labels,
+                                                 top_xmin, top_ymin, top_xmax, top_ymax)
             print results_set
 
             # now stitch the jpeg frames together to generate a mov  vodes video
             stitched_frames = stitchFrames(video_build_folder + '/', app.config['UPLOAD_FOLDER'] + '/')
             count = stitched_frames.stitch()
-
+            print 'Number of frames stitched {}'.format(count)
 
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
