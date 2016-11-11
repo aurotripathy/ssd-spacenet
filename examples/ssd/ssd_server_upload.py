@@ -124,8 +124,8 @@ def detect_file():
     '''
 
 
-@app.route('/curl/', methods=['POST'])
-def detect_curl_syntax():
+@app.route('/detectimage/', methods=['POST'])
+def detect_image():
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
@@ -155,7 +155,7 @@ def detect_curl_syntax():
 
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
-            message = 'Detected:' + ' ' + results_string + ' ' + request.base_url.replace('/curl', '') + 'uploads/' + filename 
+            message = 'Detected:' + ' ' + results_string + ' ' + request.base_url.replace('/detectimage', '') + 'uploads/' + filename 
             _send_sms_notification(recipient_phone_number,
                                    message,
                                    callback_url)
@@ -180,7 +180,7 @@ def notification_delivery_status():
     '''
 
 
-@app.route('/curl/notification/status/update', methods=["POST"])
+@app.route('/detectimage/notification/status/update', methods=["POST"])
 def curl_notification_delivery_status():
     print "###Delivered  the notification"
     return '''                                                                                                
