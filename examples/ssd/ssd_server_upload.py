@@ -19,11 +19,11 @@ from stitch_frames_to_video import stitchFrames
 
 from pudb import set_trace
  
-IMAGE_SIZE = 300
+IMAGE_SIZE = 500
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_VID_EXTENSIONS = set(['mov'])
-HTTP_SERVER_URL = 'https://4d31343c.ngrok.io/detect/uploads/play.html'
+HTTP_SERVER_URL = 'https://6b904b74.ngrok.io/detect/uploads/play.html'
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -123,6 +123,17 @@ def detect_file():
     </form>
     '''
 
+from scale import scale_box
+def scale_boxes(t_xmin, t_ymin, t_xmax, t_ymax, x_ratio, y_ratio):
+    xmin, ymin, xmax, ymax = [], [], [], []
+    for xmn, ymn, xmx, ymx in zip(t_xmin, t_ymin, t_xmax, t_ymax):
+        new_box = scale_box(xmn, ymn, xmx, ymx, x_ratio, y_ratio)
+        xmin.append(new_box[0])
+        ymin.append(new_box[1])
+        xmax.append(new_box[2])
+        ymax.append(new_box[3])
+
+    return xmin, ymin, xmax, ymax
 
 @app.route('/detectimage/', methods=['POST'])
 def detect_image():
@@ -134,24 +145,34 @@ def detect_image():
         file = request.files['file']
         print 'file name {}'.format(file)
         if file and allowed_file(file.filename):
-            print 'I believe we made it this far...'
             filename = secure_filename(file.filename)
-            print '... and filename is {}'.format(filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'orig_'+ filename))
             image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + 'orig_' + filename)
+            print 'The original dimensions are {}'.format(image.shape)
             # resize to IMAGE_SIZE x IMAGE_SIZE since the model is for those dimensions
             image_resized = ssd_server_detect.resize_image(image, IMAGE_SIZE) #caffe api, changed from cv2 to match load
             top_conf, top_label_indices, top_labels, \
             top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
 
+            x_fact = float(image.shape[0])/float(IMAGE_SIZE)
+            y_fact = float(image.shape[1])/float(IMAGE_SIZE)
+            print 'x_factor {:06.2f}, y_factor {:06.2f}'.format(x_fact, y_fact)
+            scaled_top_xmin, scaled_top_ymin, scaled_top_xmax, scaled_top_ymax = scale_boxes(top_xmin, top_ymin, top_xmax, top_ymax, 
+                                                                                       x_fact, y_fact) 
 
             results_string = ''
             for l, c in zip (top_labels, top_conf):
                 results_string += '{} ({:04.2f}),'.format(l, c)
             overlayed_file = UPLOAD_FOLDER + '/' + filename
-            ssd_server_detect.plot_boxes(overlayed_file, image_resized,  
+            print 'Resized image going to plotting {}'.format(image_resized.shape)
+            # ssd_server_detect.plot_boxes(overlayed_file, image_resized,  
+            #                              top_conf, top_label_indices, top_labels,                           
+            #                              top_xmin, top_ymin, top_xmax, top_ymax)     
+
+            ssd_server_detect.plot_boxes(overlayed_file, image,  
                                          top_conf, top_label_indices, top_labels,                           
-                                         top_xmin, top_ymin, top_xmax, top_ymax)     
+                                         scaled_top_xmin, scaled_top_ymin, scaled_top_xmax, scaled_top_ymax) 
+            
 
             callback_url = request.base_url + 'notification/status/update'
             print 'call back url {}'.format(callback_url)
