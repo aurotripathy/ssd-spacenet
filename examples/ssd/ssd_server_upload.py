@@ -19,11 +19,11 @@ from stitch_frames_to_video import stitchFrames
 
 from pudb import set_trace
  
-IMAGE_SIZE = 500
+TRAINED_SZ_SQ = 500
 UPLOAD_FOLDER = './detect/uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 ALLOWED_VID_EXTENSIONS = set(['mov'])
-HTTP_SERVER_URL = 'https://6b904b74.ngrok.io/detect/uploads/play.html'
+HTTP_SERVER_URL = 'https://8cc4c241.ngrok.io/detect/uploads/play.html'
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -32,11 +32,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # labelmap_file = '../../data/VOC0712/labelmap_voc.prototxt' 
 # model_def = '../../models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
 # model_weights = '../../models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_60000.caffemodel'
-if IMAGE_SIZE == 300:
+if TRAINED_SZ_SQ == 300:
     labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
     model_def = '../../models/VGGNet/coco/SSD_300x300/deploy.prototxt'
     model_weights = '../../models/VGGNet/coco/SSD_300x300/VGG_coco_SSD_300x300_iter_240000.caffemodel'
-elif IMAGE_SIZE == 500:
+elif TRAINED_SZ_SQ == 500:
     labelmap_file = '../../data/coco/labelmap_coco.prototxt' 
     model_def = '../../models/VGGNet/coco/SSD_500x500/deploy.prototxt'
     model_weights = '../../models/VGGNet/coco/SSD_500x500/VGG_coco_SSD_500x500_iter_200000.caffemodel'
@@ -45,7 +45,7 @@ else:
     exit(2)
 
 
-ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights, IMAGE_SIZE)
+ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights, TRAINED_SZ_SQ)
 
 recipient_phone_number = 14088025434
 # recipient_phone_number = '+919443845253'
@@ -149,13 +149,13 @@ def detect_image():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'orig_'+ filename))
             image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + 'orig_' + filename)
             print 'The original dimensions are {}'.format(image.shape)
-            # resize to IMAGE_SIZE x IMAGE_SIZE since the model is for those dimensions
-            image_resized = ssd_server_detect.resize_image(image, IMAGE_SIZE) #caffe api, changed from cv2 to match load
+            # resize to TRAINED_SZ_SQ x TRAINED_SZ_SQ since the model is for those dimensions
+            image_resized = ssd_server_detect.resize_image(image, TRAINED_SZ_SQ) #caffe api, changed from cv2 to match load
             top_conf, top_label_indices, top_labels, \
             top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
 
-            x_fact = float(image.shape[0])/float(IMAGE_SIZE)
-            y_fact = float(image.shape[1])/float(IMAGE_SIZE)
+            x_fact = float(image.shape[0])/float(TRAINED_SZ_SQ)
+            y_fact = float(image.shape[1])/float(TRAINED_SZ_SQ)
             print 'x_factor {:06.2f}, y_factor {:06.2f}'.format(x_fact, y_fact)
             scaled_top_xmin, scaled_top_ymin, scaled_top_xmax, scaled_top_ymax = scale_boxes(top_xmin, top_ymin, top_xmax, top_ymax, 
                                                                                        x_fact, y_fact) 
@@ -299,7 +299,7 @@ def detect_vidcurl_syntax():
                 if success:
                     # change into caffe format
                     image = ssd_server_detect.cv_to_caffe(image)
-                    image_resized = ssd_server_detect.resize_image(image, IMAGE_SIZE) #caffe api, changed from cv2 to match load
+                    image_resized = ssd_server_detect.resize_image(image, TRAINED_SZ_SQ) #caffe api, changed from cv2 to match load
                     top_conf, top_label_indices, top_labels, \
                         top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
             
