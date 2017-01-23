@@ -76,6 +76,58 @@ def allowed_video_file(filename):
 def non_func_homepage():
     return '<p>No API calls at home</p>', 400
 
+# route to return just a list of bounding boxes
+@app.route('/imageClassPlusBB/', methods=['POST'])
+def detect_image_class_plus_bb():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        print 'file name {}'.format(file)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'orig_'+ filename))
+            image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + 'orig_' + filename)
+            print 'The original dimensions are {}'.format(image.shape)
+            # resize to TRAINED_SZ_SQ x TRAINED_SZ_SQ since the model is for those dimensions
+            image_resized = ssd_server_detect.resize_image(image, TRAINED_SZ_SQ) #caffe api, changed from cv2 to match load
+            top_conf, top_label_indices, top_labels, \
+            top_xmin, top_ymin, top_xmax, top_ymax = ssd_server_detect.run_detect_net(image_resized)
+
+            x_fact = float(image.shape[0])/float(TRAINED_SZ_SQ)
+            y_fact = float(image.shape[1])/float(TRAINED_SZ_SQ)
+            print 'x_factor {:06.2f}, y_factor {:06.2f}'.format(x_fact, y_fact)
+            scaled_top_xmin, scaled_top_ymin, scaled_top_xmax, scaled_top_ymax = scale_boxes(top_xmin, top_ymin, top_xmax, top_ymax, 
+                                                                                       x_fact, y_fact) 
+
+            results_string = ''
+            for l, c in zip (top_labels, top_conf):
+                results_string += '{} ({:04.2f}),'.format(l, c)
+            overlayed_file = UPLOAD_FOLDER + '/' + filename
+            print 'Resized image going to plotting {}'.format(image_resized.shape)
+            # ssd_server_detect.plot_boxes(overlayed_file, image_resized,  
+            #                              top_conf, top_label_indices, top_labels,                           
+            #                              top_xmin, top_ymin, top_xmax, top_ymax)     
+
+            ssd_server_detect.plot_boxes(overlayed_file, image,  
+                                         top_conf, top_label_indices, top_labels,                           
+                                         scaled_top_xmin, scaled_top_ymin, scaled_top_xmax, scaled_top_ymax) 
+            
+
+            callback_url = request.base_url + 'notification/status/update'
+            print 'call back url {}'.format(callback_url)
+            message = 'Detected:' + ' ' + results_string + ' ' + request.base_url.replace('/imageClassPlusBB', '') + 'uploads/' + filename 
+            _send_sms_notification(recipient_phone_number,
+                                   message,
+                                   callback_url)
+
+    return "<p>Done!</p>"
+
+
+
+
 @app.route('/detect/', methods=['GET', 'POST'])
 def detect_file():
     if request.method == 'POST':
@@ -339,3 +391,6 @@ def detect_vid_notification_delivery_status():
     <title>Done</title>                                                                                
     <h1>Done!</h1>                                                                    
     '''
+
+if __name__ == "__main__":
+    app.run()
