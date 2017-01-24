@@ -2,6 +2,7 @@ import os
 from flask import Flask, request, redirect, url_for, render_template
 from werkzeug.utils import secure_filename
 from ssd_server_detect import SsdDetectionServer
+from ssd_server_detect import SsdDetectionServerV2
 
 from twilio.rest import Client
 
@@ -46,6 +47,7 @@ else:
 
 
 ssd_server_detect = SsdDetectionServer(labelmap_file, model_def, model_weights, TRAINED_SZ_SQ)
+ssd_server_detect_v2 = SsdDetectionServerV2(labelmap_file, model_def, model_weights, TRAINED_SZ_SQ)
 
 recipient_phone_number = 14088025434
 # recipient_phone_number = '+919443845253'
