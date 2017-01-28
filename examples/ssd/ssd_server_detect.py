@@ -285,7 +285,8 @@ class SsdDetectionServerV2(object):
                 # print 'label: {} (xmin, ymin) = ({}, {}), (xmax, ymax) = ({}, {}) color_index {}'.format(label, xmin, ymin, xmax, ymax, color_index)                                          
                 cv2.rectangle(self.cpimg, (xmin, ymin), (xmax, ymax), COLORS[color_index], 2)
                 cv2.putText(self.cpimg, name, (xmin, ymin + 15), cv2.FONT_HERSHEY_DUPLEX, 0.5, COLORS[color_index] , 1)
-                bb_plus_class.append({'label':label, 'x_min_y_min':(xmin, ymin), 'x_max_y_max':(xmax, ymax)})
+                bb_plus_class.append({'label':label, 'confidence': score, 
+                                      'x_min_y_min':(xmin, ymin), 'x_max_y_max':(xmax, ymax)})
 
             output_img = path.join('outdir', imagename)
             print 'Outputting image at {}'.format(output_img)
@@ -344,23 +345,23 @@ class SsdDetectionServerV2(object):
 
 
 
-# Unit test TEST THIS API FROM THE LOCAL FOLDER
+# # Unit test TEST THIS API FROM THE LOCAL FOLDER
 
-model_def = '../../models/VGGNet/coco/SSD_500x500/deploy.prototxt'
-model_weights = '../../models/VGGNet/coco/SSD_500x500/VGG_coco_SSD_500x500_iter_200000.caffemodel'
+# model_def = '../../models/VGGNet/coco/SSD_500x500/deploy.prototxt'
+# model_weights = '../../models/VGGNet/coco/SSD_500x500/VGG_coco_SSD_500x500_iter_200000.caffemodel'
 
-# load VOC labels for the 21 classes
-labelmap_file = '../../data/coco/labelmap_coco.prototxt'
+# # load VOC labels for the 21 classes
+# labelmap_file = '../../data/coco/labelmap_coco.prototxt'
 
-TRAINED_SZ_SQ = 500
-ssd_server_detect_v2 = SsdDetectionServerV2(labelmap_file, model_def, model_weights, TRAINED_SZ_SQ)
+# TRAINED_SZ_SQ = 500
+# ssd_server_detect_v2 = SsdDetectionServerV2(labelmap_file, model_def, model_weights, TRAINED_SZ_SQ)
 
-inputlist = open('frames.txt','r')
-lines = inputlist.readlines()
-for line in lines:
-    line = line.replace('\n','')
-    image = ssd_server_detect_v2.load_image_v2(line)
-    # image_resized = ssd_server_detect.resize_image_v2(image, TRAINED_SZ_SQ)
-    bb = ssd_server_detect_v2.run_detect_net_v2(image)
-    print 'json data {}'.format(bb)
+# inputlist = open('frames.txt','r')
+# lines = inputlist.readlines()
+# for line in lines:
+#     line = line.replace('\n','')
+#     image = ssd_server_detect_v2.load_image_v2(line)
+#     # image_resized = ssd_server_detect.resize_image_v2(image, TRAINED_SZ_SQ)
+#     bb = ssd_server_detect_v2.run_detect_net_v2(image)
+#     print 'json data {}'.format(bb)
 
