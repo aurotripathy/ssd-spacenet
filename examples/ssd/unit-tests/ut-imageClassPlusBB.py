@@ -40,7 +40,7 @@ def execute_rest_api(img_name, outdir_path):
         (xmin, ymin) = bb['x_min_y_min']
         (xmax, ymax) = bb['x_max_y_max']
         label = bb['label']
-        color_index = random.randint(0,tot_colors)
+        color_index = random.randint(0,tot_colors-1)
         cv2.rectangle(cpimg, (xmin, ymin), (xmax, ymax), COLORS[color_index], 2)
         cv2.putText(cpimg, label, (xmin, ymin + 15), cv2.FONT_HERSHEY_DUPLEX, 0.5, COLORS[color_index] , 1)
 
