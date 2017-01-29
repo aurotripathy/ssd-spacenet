@@ -9,6 +9,7 @@ from twilio.rest import Client
 import ImageDraw
 import Image
 
+from flask import Response
 # from flask import json
 
 import json
@@ -74,6 +75,7 @@ def allowed_video_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_VID_EXTENSIONS
 
 
+
 @app.route('/', methods=['GET', 'POST'])
 def non_func_homepage():
     return '<p>No API calls at home</p>', 400
@@ -94,12 +96,14 @@ def detect_image_class_plus_bb():
             image = ssd_server_detect.load_image(UPLOAD_FOLDER + '/' + 'orig_' + filename)
             print 'The original dimensions are {}'.format(image.shape)
             # resize to TRAINED_SZ_SQ x TRAINED_SZ_SQ since the model is for those dimensions
-            image_resized = ssd_server_detect.resize_image(image, TRAINED_SZ_SQ) #caffe api, changed from cv2 to match load
+            # image_resized = ssd_server_detect.resize_image(image, TRAINED_SZ_SQ) #caffe api, changed from cv2 to match load
 
-            bb_plus_class = ssd_server_detect_v2.run_detect_net_v2(image_resized)
+            # bb_plus_class = ssd_server_detect_v2.run_detect_net_v2(image_resized)
+            bb_plus_class = ssd_server_detect_v2.run_detect_net_v2(image)            
             bb_plus_class = '{}'.format(bb_plus_class)
-    return jsonify(results=bb_plus_class)
-
+            #print bb_plus_class
+    # return jsonify(results=bb_plus_class)
+    return Response(json.dumps(bb_plus_class),  mimetype='application/json')
 
 
 
