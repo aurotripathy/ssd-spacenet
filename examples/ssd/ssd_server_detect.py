@@ -271,7 +271,7 @@ class SsdDetectionServerV2(object):
         top_xmax = det_xmax[top_indices]
         top_ymax = det_ymax[top_indices]
 
-        bb_plus_class = []
+        bb_plus_class_list = []
         if top_conf.shape[0] > 0:
             for i in xrange(top_conf.shape[0]):
                 xmin = int(round(top_xmin[i] * image.shape[1]))
@@ -285,8 +285,8 @@ class SsdDetectionServerV2(object):
                 # print 'label: {} (xmin, ymin) = ({}, {}), (xmax, ymax) = ({}, {}) color_index {}'.format(label, xmin, ymin, xmax, ymax, color_index)                                          
                 cv2.rectangle(self.cpimg, (xmin, ymin), (xmax, ymax), COLORS[color_index], 2)
                 cv2.putText(self.cpimg, name, (xmin, ymin + 15), cv2.FONT_HERSHEY_DUPLEX, 0.5, COLORS[color_index] , 1)
-                bb_plus_class.append({'label':label, 'confidence': score, 
-                                      'x_min_y_min':(xmin, ymin), 'x_max_y_max':(xmax, ymax)})
+                bb_plus_class_list.append({"label":str(label), "confidence": score, 
+                                      "x_min_y_min":(xmin, ymin), "x_max_y_max":(xmax, ymax)})
 
             output_img = path.join('outdir', imagename)
             print 'Outputting image at {}'.format(output_img)
@@ -300,7 +300,7 @@ class SsdDetectionServerV2(object):
             print output_img
             cv2.imwrite(output_img, self.cpimg)
 
-        return bb_plus_class
+        return bb_plus_class_list
 
     def load_image_v2(self, image_file):
         return caffe.io.load_image(image_file)
